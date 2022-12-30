@@ -5,6 +5,8 @@ import { fileURLToPath } from "url";
 
 const app = express();
 
+const port = process.env.PORT || 3000
+
 const __filename = fileURLToPath(import.meta.url);
 
 const __dirname = path.dirname(__filename);
@@ -23,13 +25,11 @@ Student.createStudent("Don", "bobo");
 
 app.get("/", async (req, res) => {
   const list = await Student.listParticipation();
-  console.log(list);
   res.render("index.ejs", { data: list });
 });
 
 app.get("/supervisors", async (req, res) => {
   const list = await Teacher.listParticipation();
-  console.log(list);
   res.render("supervisors.ejs", { data: list });
 });
 
@@ -90,7 +90,6 @@ app.get("/deleteUser", async (req, res) => {
 });
 
 app.post("/deleteUser", async (req, res) => {
-  console.log("deleting");
   await Student.deleteStudent(req.body.name, req.body.faculty);
   const students = await Student.listStudents();
   res.render("users.ejs", { data: students });
@@ -190,7 +189,6 @@ app.get("/deleteTeaches", async (req, res) => {
 });
 
 app.post("/deleteTeaches", async (req, res) => {
-    console.log("meeee")
   await Teacher.deleteParticipation(
     req.body.name,
     req.body.faculty,
@@ -210,4 +208,9 @@ app.get("/classes", async (req, res) => {
   res.render("classes.ejs", { data: students });
 });
 
-app.listen(3000);
+app.get("*", async (req, res) => {
+  const list = await Student.listParticipation();
+  res.render("index.ejs", { data: list });
+});
+
+app.listen(port);
