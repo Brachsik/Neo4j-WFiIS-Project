@@ -4,7 +4,7 @@
   <div class="modal-dialog" role="document">
     <div class="modal-content rounded-4 shadow">
       <div class="modal-header p-5 border-bottom-0">
-        <h1 class="fw-bold mb-0 fs-2">Stwórz Przedmiot</h1>
+        <h1 class="fw-bold mb-0 fs-2"><%= whatTo %></h1>
       </div>
       <div class="modal-body p-5 pt-0">
         <form action=<%= data %>  method=<%= method %>>
@@ -12,7 +12,7 @@
             <input type="text" class="form-control rounded-3" name="name" id="name" placeholder="Matematyka I" required>
             <label for="floatingInput">Nazwa Przedmiotu</label>
           </div>
-          <button class="w-100 mb-2 btn btn-lg rounded-3 btn-primary mt-4" type="submit">Stwórz</button>
+          <button class="w-100 mb-2 btn btn-lg rounded-3 btn-primary mt-4" type="submit"><%= what %></button>
           <small class="text-muted">By clicking Sign up, you agree to the terms of use.</small>
         </form>
       </div>

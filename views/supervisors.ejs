@@ -1,17 +1,16 @@
 <%- include('./includes/navbar')%>
 <div class="container"><div>
-    <div class="text-center"><span>Witaj, w systemie nie ticketowym! <br></span>
-    <p>Aplikacja słuy do dodawania studentów, nauczycieli, przedmiotów wraz z rejestracją!</p></div>
+    <div class="text-center"><span>Lista prowadzących oraz ich zajęcia<br></span>
     <div class="flex-column">
         <div class="float-right mb-4">
-            <a href="/deleteGoesTo" class="btn btn-danger btn-sm active" role="button" aria-pressed="true">Usuń Rejestracje</a>
-            <a href="/createGoesTo" class="btn btn-primary btn-sm active" role="button" aria-pressed="true">Zarejestruj na przedmiot</a>
+            <a href="/deleteTeaches" class="btn btn-danger btn-sm active" role="button" aria-pressed="true">Usuń rejestracje</a>
+            <a href="/createTeaches" class="btn btn-primary btn-sm active" role="button" aria-pressed="true">Zarejestruj na przedmiot</a>
         </div>
         <div class="mt-4 p-5 w-100">
             <div class="row mb-3 text-center border-bottom mt-5 mb-4 py-3">
                 <div class="col -md-4">Nazwa</div>
                 <div class="col -md-4">Wydział</div>
-                <div class="col -md-4">zarejestrowany na Przedmiot</div>
+                <div class="col -md-4">prowadzi Przedmiot</div>
             </div>
             
                 <% data.map((user) => { %>

@@ -29,7 +29,7 @@ export const StudentClass = class extends db {
   deleteStudent = async (name, faculty) => {
     const session = this.driver.session({ database: "neo4j" });
     try {
-      const writeQuery = `MATCH (n:Student {name: $name, faculty: $faculty}) DELETE n`;
+      const writeQuery = `MATCH (n:Student {name: $name, faculty: $faculty}) DETACH DELETE n`;
 
       await session.executeWrite((tx) => tx.run(writeQuery, { name, faculty }));
     } catch (error) {
@@ -60,6 +60,31 @@ export const StudentClass = class extends db {
     }
   };
 
+  listParticipation = async () => {
+    const session = this.driver.session({ database: "neo4j" });
+
+    try {
+      const readQuery = `MATCH n=()-[:PARTICIPATES_IN]->() RETURN n`;
+
+      const readResult = await session.executeRead((tx) => tx.run(readQuery));
+
+      const Students = readResult.records.map((record) => {
+        const p = record.get("n");
+        return {
+          name: p.start.properties.name,
+          faculty: p.start.properties.faculty,
+          class: p.end.properties.name,
+        };
+      });
+
+      return Students;
+    } catch (error) {
+      console.error(`Something went wrong: ${error}`);
+    } finally {
+      await session.close();
+    }
+  };
+
   findStudent = async (name) => {
     const session = this.driver.session({ database: "neo4j" });
 
@@ -72,15 +97,6 @@ export const StudentClass = class extends db {
         tx.run(readQuery, { name })
       );
 
-      const Student = readResult.get("p");
-
-      readResult.records.forEach((record) => {
-        console.log(
-          `Found person: ${p.properties.get(
-            "name"
-          )}, faculty: ${p.properties.get("faculty")}`
-        );
-      });
     } catch (error) {
       console.error(`Something went wrong: ${error}`);
     } finally {
@@ -88,17 +104,17 @@ export const StudentClass = class extends db {
     }
   };
 
-  createParticipation = async (name, activity) => {
+  createParticipation = async (name, faculty, activity) => {
     const session = this.driver.session({ database: "neo4j" });
 
     try {
-      const writeQuery = `MERGE (p1:Student { name: $name })
-                                MERGE (p2:Class { name: $activity })
+      const writeQuery = `MERGE (p1:Student { name: $name, faculty: $faculty  })
+                                MERGE (p2:Class { name: $activity})
                                 MERGE (p1)-[:PARTICIPATES_IN]->(p2)
                                 RETURN p1, p2`;
 
       const writeResult = await session.executeWrite((tx) =>
-        tx.run(writeQuery, { name, activity })
+        tx.run(writeQuery, { name, activity, faculty })
       );
 
       writeResult.records.forEach((record) => {
@@ -108,6 +124,22 @@ export const StudentClass = class extends db {
           `Created friendship between: ${person1Node.properties.name}, ${person2Node.properties.name}`
         );
       });
+    } catch (error) {
+      console.error(`Something went wrong: ${error}`);
+    } finally {
+      await session.close();
+    }
+  };
+
+  deleteParticipation = async (name, faculty, activity) => {
+    const session = this.driver.session({ database: "neo4j" });
+
+    try {
+      const writeQuery = `MATCH (p1:Student { name: $name, faculty: $faculty  })-[r:PARTICIPATES_IN]->(p2:Class {name: $activity}) DELETE r`;
+
+      const writeResult = await session.executeWrite((tx) =>
+        tx.run(writeQuery, { name, activity, faculty })
+      );
     } catch (error) {
       console.error(`Something went wrong: ${error}`);
     } finally {
@@ -134,7 +166,7 @@ export const TeacherClass = class extends db {
     const session = this.driver.session({ database: "neo4j" });
     try {
       const writeQuery = `MERGE (n:Teacher {name: $name, faculty: $faculty})
-    DELETE n`;
+    DETACH DELETE n`;
 
       await session.executeWrite((tx) => tx.run(writeQuery, { name, faculty }));
     } catch (error) {
@@ -161,7 +193,74 @@ export const TeacherClass = class extends db {
     } catch (error) {
       console.error(`Something went wrong: ${error}`);
     } finally {
-      console.log("closing");
+      await session.close();
+    }
+  };
+
+  listParticipation = async () => {
+    const session = this.driver.session({ database: "neo4j" });
+
+    try {
+      const readQuery = `MATCH n=()-[:TEACHES]->() RETURN n`;
+
+      const readResult = await session.executeRead((tx) => tx.run(readQuery));
+
+      const Students = readResult.records.map((record) => {
+        const p = record.get("n");
+        return {
+          name: p.start.properties.name,
+          faculty: p.start.properties.faculty,
+          class: p.end.properties.name,
+        };
+      });
+
+      return Students;
+    } catch (error) {
+      console.error(`Something went wrong: ${error}`);
+    } finally {
+      await session.close();
+    }
+  };
+
+  createParticipation = async (name, faculty, activity) => {
+    const session = this.driver.session({ database: "neo4j" });
+
+    try {
+      const writeQuery = `MERGE (p1:Teacher { name: $name, faculty: $faculty  })
+                                MERGE (p2:Class { name: $activity})
+                                MERGE (p1)-[:TEACHES]->(p2)
+                                RETURN p1, p2`;
+
+      const writeResult = await session.executeWrite((tx) =>
+        tx.run(writeQuery, { name, activity, faculty })
+      );
+
+      writeResult.records.forEach((record) => {
+        const person1Node = record.get("p1");
+        const person2Node = record.get("p2");
+        console.info(
+          `Created friendship between: ${person1Node.properties.name}, ${person2Node.properties.name}`
+        );
+      });
+    } catch (error) {
+      console.error(`Something went wrong: ${error}`);
+    } finally {
+      await session.close();
+    }
+  };
+
+  deleteParticipation = async (name, faculty, activity) => {
+    const session = this.driver.session({ database: "neo4j" });
+
+    try {
+      const writeQuery = `MATCH (p1:Teacher { name: $name, faculty: $faculty  })-[r:TEACHES]->(p2:Class {name: $activity}) DELETE r`;
+
+      const writeResult = await session.executeWrite((tx) =>
+        tx.run(writeQuery, { name, activity, faculty })
+      );
+    } catch (error) {
+      console.error(`Something went wrong: ${error}`);
+    } finally {
       await session.close();
     }
   };
@@ -184,7 +283,7 @@ export const ActivityClass = class extends db {
   deleteClass = async (name) => {
     const session = this.driver.session({ database: "neo4j" });
     try {
-      const writeQuery = `MATCH (n:Class {name: $name}) DELETE n`;
+      const writeQuery = `MATCH (n:Class {name: $name}) DETACH DELETE n`;
 
       await session.executeWrite((tx) => tx.run(writeQuery, { name }));
     } catch (error) {
@@ -206,11 +305,7 @@ export const ActivityClass = class extends db {
         tx.run(readQuery, { name })
       );
 
-      const Student = readResult.get("p");
 
-      readResult.records.forEach((record) => {
-        console.log(`Found person: ${p.properties.get("name")}`);
-      });
     } catch (error) {
       console.error(`Something went wrong: ${error}`);
     } finally {
@@ -235,7 +330,6 @@ export const ActivityClass = class extends db {
     } catch (error) {
       console.error(`Something went wrong: ${error}`);
     } finally {
-      console.log("closing");
       await session.close();
     }
   };
