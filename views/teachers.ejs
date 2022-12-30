@@ -1,0 +1,21 @@
+<%- include('./includes/navbar')%>
+<div class="container"><div>
+   <div class="mb-4"> <span class="fs-2">W bazie zostali zarejestrowani poszczególni nauczyciele!</span>
+    <div class="float-right">
+        <a href="/createTeacher" class="btn btn-danger btn-sm active" role="button" aria-pressed="true">Usuń Nauczyciela</a>
+        <a href="/createTeacher" class="btn btn-primary btn-sm active" role="button" aria-pressed="true">Zarejestruj Nauczyciela</a>
+    </div>
+    </div>
+    <div class="row mb-2 text-center border-bottom mb-4 p-3">
+        <div class="col -md-4">Nazwa</div>
+        <div class="col -md-4">Wydział</div>
+    </div>
+    
+        <% data.map((user) => { %>
+            <div class="row mb-2 text-center">
+        <div class="col -md-2"> <%= user.name %> </div> 
+        <div class="col -md-2"> <%= user.faculty %></div>
+        </div>
+        <% }); %>
+</div>
+<%- include('./includes/footer') %></div>
